@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from functools import lru_cache
 from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Configure logging early
+from momops.utils.logger import configure_logging
 
 
 class MomOpsSettings(BaseSettings):
@@ -17,6 +21,7 @@ class MomOpsSettings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        case_sensitive=False,
     )
 
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
@@ -27,11 +32,31 @@ class MomOpsSettings(BaseSettings):
     budget_limit: float | None = None
     dry_run: bool = False
     log_level: str = "INFO"
-    state_dir: Path = Path.home() / ".momops"
+    json_logging: bool = False
+    state_dir: Path = Field(default_factory=lambda: Path.home() / ".momops")
     pricing_mode: str = "static"
+    deployment_timeout: int = 1800  # 30 minutes
+
+    def model_post_init(self, __context: any) -> None:
+        """Post-initialization validation."""
+        # Ensure state directory exists
+        self.state_dir.mkdir(parents=True, exist_ok=True)
+
+        # Configure logging with settings
+        configure_logging(
+            level=self.log_level,
+            json_format=self.json_logging,
+            log_file=self.state_dir / "momops.log",
+        )
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> MomOpsSettings:
-    """Return cached settings."""
+    """Return cached settings singleton."""
     return MomOpsSettings()
+
+
+def reload_settings() -> MomOpsSettings:
+    """Force reload of settings (clears cache)."""
+    get_settings.cache_clear()
+    return get_settings()
