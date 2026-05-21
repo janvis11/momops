@@ -8,7 +8,9 @@ from typing import Any
 class MomOpsError(Exception):
     """Base class for all MomOps domain errors."""
 
-    def __init__(self, message: str, code: str = "UNKNOWN", context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, message: str, code: str = "UNKNOWN", context: dict[str, Any] | None = None
+    ) -> None:
         """Initialize MomOps error with context.
 
         Args:
@@ -47,7 +49,9 @@ class IntentParsingError(MomOpsError):
 class BudgetExceededError(MomOpsError):
     """Raised when a blueprint would exceed configured budget guardrails."""
 
-    def __init__(self, estimated: float, limit: float, context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, estimated: float, limit: float, context: dict[str, Any] | None = None
+    ) -> None:
         msg = f"Estimated cost ${estimated:.2f}/month exceeds budget limit ${limit:.2f}/month"
         context = context or {}
         context.update({"estimated_cost": estimated, "budget_limit": limit})
@@ -57,7 +61,9 @@ class BudgetExceededError(MomOpsError):
 class ProviderError(MomOpsError):
     """Raised when a cloud provider call fails."""
 
-    def __init__(self, provider: str, operation: str, message: str, context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, provider: str, operation: str, message: str, context: dict[str, Any] | None = None
+    ) -> None:
         msg = f"{provider} API error during {operation}: {message}"
         context = context or {}
         context.update({"provider": provider, "operation": operation})
@@ -77,7 +83,9 @@ class StateError(MomOpsError):
 class ValidationError(MomOpsError):
     """Raised when input validation fails."""
 
-    def __init__(self, field: str, value: Any, reason: str, context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, field: str, value: Any, reason: str, context: dict[str, Any] | None = None
+    ) -> None:
         msg = f"Validation failed for {field}: {reason}"
         context = context or {}
         context.update({"field": field, "value": str(value)})
@@ -87,7 +95,9 @@ class ValidationError(MomOpsError):
 class DeploymentError(MomOpsError):
     """Raised when deployment fails."""
 
-    def __init__(self, message: str, recoverable: bool = False, context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, message: str, recoverable: bool = False, context: dict[str, Any] | None = None
+    ) -> None:
         context = context or {}
         context["recoverable"] = recoverable
         super().__init__(message, code="DEPLOYMENT_ERROR", context=context)
@@ -97,7 +107,9 @@ class DeploymentError(MomOpsError):
 class RollbackError(MomOpsError):
     """Raised when automatic rollback fails."""
 
-    def __init__(self, deployment_id: str, message: str, context: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self, deployment_id: str, message: str, context: dict[str, Any] | None = None
+    ) -> None:
         context = context or {}
         context["deployment_id"] = deployment_id
         super().__init__(message, code="ROLLBACK_ERROR", context=context)

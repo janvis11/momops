@@ -86,14 +86,16 @@ def optimize(
     suggestions: list[OptimizationSuggestion] = []
     for s in suggestions_raw:
         try:
-            suggestions.append(OptimizationSuggestion(
-                for_=optimize_for,
-                title=s.get("title", "Optimization"),
-                description=s.get("description", ""),
-                monthly_savings_usd=float(s.get("monthly_savings_usd", 0)),
-                trade_off=s.get("trade_off", ""),
-                apply_command=s.get("apply_command", ""),
-            ))
+            suggestions.append(
+                OptimizationSuggestion(
+                    for_=optimize_for,
+                    title=s.get("title", "Optimization"),
+                    description=s.get("description", ""),
+                    monthly_savings_usd=float(s.get("monthly_savings_usd", 0)),
+                    trade_off=s.get("trade_off", ""),
+                    apply_command=s.get("apply_command", ""),
+                )
+            )
         except Exception as exc:
             logger.debug("Skipping malformed suggestion: %s", exc)
 

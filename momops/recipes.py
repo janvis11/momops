@@ -107,23 +107,27 @@ def _build_cost(
     ]
 
     if db_type:
-        items.append(LineItem(
-            label="database",
-            service="RDS",
-            instance_type=db_type,
-            monthly_usd=_RDS_COST.get(db_type, 50.0),
-        ))
+        items.append(
+            LineItem(
+                label="database",
+                service="RDS",
+                instance_type=db_type,
+                monthly_usd=_RDS_COST.get(db_type, 50.0),
+            )
+        )
 
     if include_cdn:
         items.append(LineItem(label="cdn", service="CloudFront", monthly_usd=5.0))
 
     if include_redis:
-        items.append(LineItem(
-            label="cache",
-            service="ElastiCache Redis",
-            instance_type="cache.t3.micro",
-            monthly_usd=16.0,
-        ))
+        items.append(
+            LineItem(
+                label="cache",
+                service="ElastiCache Redis",
+                instance_type="cache.t3.micro",
+                monthly_usd=16.0,
+            )
+        )
 
     items.append(LineItem(label="monitoring", service="CloudWatch", monthly_usd=3.0))
 
@@ -154,24 +158,71 @@ def _api_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
     ]
 
     if db:
-        services.append(AWSService(
-            name=f"{db_label or 'Postgres'} Database",
-            service="RDS",
-            instance_type=db,
-            config={"engine": db_label or "postgres", "multi_az": req.scale != ScaleHint.HOBBY},
-        ))
+        services.append(
+            AWSService(
+                name=f"{db_label or 'Postgres'} Database",
+                service="RDS",
+                instance_type=db,
+                config={"engine": db_label or "postgres", "multi_az": req.scale != ScaleHint.HOBBY},
+            )
+        )
 
     if req.auth_required:
         services.append(AWSService(name="Secrets Manager", service="SecretsManager"))
 
     steps: list[DeployStep] = [
-        DeployStep(order=1, name="VPC", description="Create VPC + subnets", aws_service="EC2", estimated_duration_seconds=15),
-        DeployStep(order=2, name="Security Groups", description="Configure firewall rules", aws_service="EC2", estimated_duration_seconds=10),
-        DeployStep(order=3, name="Database", description=f"Provision RDS {db_label or 'postgres'}", aws_service="RDS", estimated_duration_seconds=180, rollback_action="delete_db_instance"),
-        DeployStep(order=4, name="Compute", description=f"Launch EC2 {ec2} + autoscaling", aws_service="EC2", estimated_duration_seconds=60, rollback_action="terminate_instances"),
-        DeployStep(order=5, name="Load Balancer", description="Create ALB + target group", aws_service="ALB", estimated_duration_seconds=30, rollback_action="delete_load_balancer"),
-        DeployStep(order=6, name="SSL Certificate", description="Issue ACM cert + attach to ALB", aws_service="ACM", estimated_duration_seconds=20),
-        DeployStep(order=7, name="Monitoring", description="CloudWatch alarms + dashboards", aws_service="CloudWatch", estimated_duration_seconds=15),
+        DeployStep(
+            order=1,
+            name="VPC",
+            description="Create VPC + subnets",
+            aws_service="EC2",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="Security Groups",
+            description="Configure firewall rules",
+            aws_service="EC2",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=3,
+            name="Database",
+            description=f"Provision RDS {db_label or 'postgres'}",
+            aws_service="RDS",
+            estimated_duration_seconds=180,
+            rollback_action="delete_db_instance",
+        ),
+        DeployStep(
+            order=4,
+            name="Compute",
+            description=f"Launch EC2 {ec2} + autoscaling",
+            aws_service="EC2",
+            estimated_duration_seconds=60,
+            rollback_action="terminate_instances",
+        ),
+        DeployStep(
+            order=5,
+            name="Load Balancer",
+            description="Create ALB + target group",
+            aws_service="ALB",
+            estimated_duration_seconds=30,
+            rollback_action="delete_load_balancer",
+        ),
+        DeployStep(
+            order=6,
+            name="SSL Certificate",
+            description="Issue ACM cert + attach to ALB",
+            aws_service="ACM",
+            estimated_duration_seconds=20,
+        ),
+        DeployStep(
+            order=7,
+            name="Monitoring",
+            description="CloudWatch alarms + dashboards",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=15,
+        ),
     ]
 
     return ArchitectureBlueprint(
@@ -194,18 +245,60 @@ def _blog_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
         AWSService(name="VPC", service="VPC", config={"cidr": "10.0.0.0/16"}),
         AWSService(name="ALB", service="ALB"),
         AWSService(name="Web Servers", service="EC2", instance_type=ec2),
-        AWSService(name="Postgres DB", service="RDS", instance_type=db, config={"engine": "postgres"}),
+        AWSService(
+            name="Postgres DB", service="RDS", instance_type=db, config={"engine": "postgres"}
+        ),
         AWSService(name="S3 Media Bucket", service="S3", config={"versioning": True}),
-        AWSService(name="CloudFront CDN", service="CloudFront", config={"price_class": "PriceClass_100"}),
+        AWSService(
+            name="CloudFront CDN", service="CloudFront", config={"price_class": "PriceClass_100"}
+        ),
     ]
 
     steps = [
-        DeployStep(order=1, name="VPC", description="Network foundation", aws_service="EC2", estimated_duration_seconds=15),
-        DeployStep(order=2, name="Database", description="Postgres for content", aws_service="RDS", estimated_duration_seconds=180, rollback_action="delete_db_instance"),
-        DeployStep(order=3, name="S3 + CDN", description="Media storage + CloudFront", aws_service="S3", estimated_duration_seconds=30),
-        DeployStep(order=4, name="Compute", description=f"EC2 {ec2}", aws_service="EC2", estimated_duration_seconds=60, rollback_action="terminate_instances"),
-        DeployStep(order=5, name="Load Balancer", description="ALB + HTTPS", aws_service="ALB", estimated_duration_seconds=30),
-        DeployStep(order=6, name="Monitoring", description="CloudWatch", aws_service="CloudWatch", estimated_duration_seconds=15),
+        DeployStep(
+            order=1,
+            name="VPC",
+            description="Network foundation",
+            aws_service="EC2",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="Database",
+            description="Postgres for content",
+            aws_service="RDS",
+            estimated_duration_seconds=180,
+            rollback_action="delete_db_instance",
+        ),
+        DeployStep(
+            order=3,
+            name="S3 + CDN",
+            description="Media storage + CloudFront",
+            aws_service="S3",
+            estimated_duration_seconds=30,
+        ),
+        DeployStep(
+            order=4,
+            name="Compute",
+            description=f"EC2 {ec2}",
+            aws_service="EC2",
+            estimated_duration_seconds=60,
+            rollback_action="terminate_instances",
+        ),
+        DeployStep(
+            order=5,
+            name="Load Balancer",
+            description="ALB + HTTPS",
+            aws_service="ALB",
+            estimated_duration_seconds=30,
+        ),
+        DeployStep(
+            order=6,
+            name="Monitoring",
+            description="CloudWatch",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=15,
+        ),
     ]
 
     return ArchitectureBlueprint(
@@ -234,10 +327,35 @@ def _ml_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
     ]
 
     steps = [
-        DeployStep(order=1, name="VPC + S3", description="Network + model storage", aws_service="EC2", estimated_duration_seconds=20),
-        DeployStep(order=2, name="Compute", description=f"Launch {instance}", aws_service="EC2", estimated_duration_seconds=90, rollback_action="terminate_instances"),
-        DeployStep(order=3, name="API Gateway", description="HTTP API + Lambda proxy", aws_service="APIGateway", estimated_duration_seconds=30),
-        DeployStep(order=4, name="Monitoring", description="Inference latency alarms", aws_service="CloudWatch", estimated_duration_seconds=15),
+        DeployStep(
+            order=1,
+            name="VPC + S3",
+            description="Network + model storage",
+            aws_service="EC2",
+            estimated_duration_seconds=20,
+        ),
+        DeployStep(
+            order=2,
+            name="Compute",
+            description=f"Launch {instance}",
+            aws_service="EC2",
+            estimated_duration_seconds=90,
+            rollback_action="terminate_instances",
+        ),
+        DeployStep(
+            order=3,
+            name="API Gateway",
+            description="HTTP API + Lambda proxy",
+            aws_service="APIGateway",
+            estimated_duration_seconds=30,
+        ),
+        DeployStep(
+            order=4,
+            name="Monitoring",
+            description="Inference latency alarms",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=15,
+        ),
     ]
 
     items = [
@@ -254,7 +372,9 @@ def _ml_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
         description=f"GPU-accelerated ML serving on {instance} + API Gateway",
         aws_services=services,
         deploy_steps=steps,
-        cost=CostBreakdown(items=items, savings_available=round(monthly * 0.60, 2)),  # spot saves 60% on GPU
+        cost=CostBreakdown(
+            items=items, savings_available=round(monthly * 0.60, 2)
+        ),  # spot saves 60% on GPU
         security=_DEFAULT_SECURITY,
         requirement=req,
     )
@@ -265,19 +385,60 @@ def _realtime_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
 
     services = [
         AWSService(name="VPC", service="VPC"),
-        AWSService(name="WebSocket Servers", service="EC2", instance_type=ec2, config={"min": 2, "max": 8}),
-        AWSService(name="ElastiCache Redis", service="ElastiCache", instance_type="cache.r6g.large"),
+        AWSService(
+            name="WebSocket Servers", service="EC2", instance_type=ec2, config={"min": 2, "max": 8}
+        ),
+        AWSService(
+            name="ElastiCache Redis", service="ElastiCache", instance_type="cache.r6g.large"
+        ),
         AWSService(name="ALB (WebSocket)", service="ALB", config={"protocol": "wss"}),
         AWSService(name="SQS Queue", service="SQS"),
     ]
 
     steps = [
-        DeployStep(order=1, name="VPC", description="Network + subnets", aws_service="EC2", estimated_duration_seconds=15),
-        DeployStep(order=2, name="Redis", description="ElastiCache for pub/sub", aws_service="ElastiCache", estimated_duration_seconds=120),
-        DeployStep(order=3, name="Compute", description=f"WebSocket servers {ec2}", aws_service="EC2", estimated_duration_seconds=60, rollback_action="terminate_instances"),
-        DeployStep(order=4, name="ALB + wss://", description="WebSocket-capable load balancer", aws_service="ALB", estimated_duration_seconds=30),
-        DeployStep(order=5, name="SQS", description="Message queue for reliability", aws_service="SQS", estimated_duration_seconds=10),
-        DeployStep(order=6, name="Monitoring", description="Connection count + latency alarms", aws_service="CloudWatch", estimated_duration_seconds=15),
+        DeployStep(
+            order=1,
+            name="VPC",
+            description="Network + subnets",
+            aws_service="EC2",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="Redis",
+            description="ElastiCache for pub/sub",
+            aws_service="ElastiCache",
+            estimated_duration_seconds=120,
+        ),
+        DeployStep(
+            order=3,
+            name="Compute",
+            description=f"WebSocket servers {ec2}",
+            aws_service="EC2",
+            estimated_duration_seconds=60,
+            rollback_action="terminate_instances",
+        ),
+        DeployStep(
+            order=4,
+            name="ALB + wss://",
+            description="WebSocket-capable load balancer",
+            aws_service="ALB",
+            estimated_duration_seconds=30,
+        ),
+        DeployStep(
+            order=5,
+            name="SQS",
+            description="Message queue for reliability",
+            aws_service="SQS",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=6,
+            name="Monitoring",
+            description="Connection count + latency alarms",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=15,
+        ),
     ]
 
     return ArchitectureBlueprint(
@@ -295,14 +456,40 @@ def _realtime_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
 def _static_site_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
     services = [
         AWSService(name="Static Asset Bucket", service="S3", config={"versioning": True}),
-        AWSService(name="CloudFront CDN", service="CloudFront", config={"price_class": "PriceClass_100"}),
+        AWSService(
+            name="CloudFront CDN", service="CloudFront", config={"price_class": "PriceClass_100"}
+        ),
         AWSService(name="DNS", service="Route53"),
     ]
     steps = [
-        DeployStep(order=1, name="S3", description="Create encrypted static site bucket", aws_service="S3", estimated_duration_seconds=15),
-        DeployStep(order=2, name="CloudFront", description="Create CDN distribution with HTTPS", aws_service="CloudFront", estimated_duration_seconds=60),
-        DeployStep(order=3, name="Route53", description="Prepare DNS records", aws_service="Route53", estimated_duration_seconds=10),
-        DeployStep(order=4, name="Monitoring", description="CloudWatch request and error alarms", aws_service="CloudWatch", estimated_duration_seconds=10),
+        DeployStep(
+            order=1,
+            name="S3",
+            description="Create encrypted static site bucket",
+            aws_service="S3",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="CloudFront",
+            description="Create CDN distribution with HTTPS",
+            aws_service="CloudFront",
+            estimated_duration_seconds=60,
+        ),
+        DeployStep(
+            order=3,
+            name="Route53",
+            description="Prepare DNS records",
+            aws_service="Route53",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=4,
+            name="Monitoring",
+            description="CloudWatch request and error alarms",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=10,
+        ),
     ]
     items = [
         LineItem(label="storage", service="S3", monthly_usd=5.0),
@@ -326,16 +513,54 @@ def _database_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
     db = _RDS_BY_SCALE[req.scale]
     engine = req.database.value if req.database != DatabaseType.NONE else "postgres"
     services = [
-        AWSService(name="VPC", service="VPC", config={"cidr": "10.0.0.0/16", "private_subnets": True}),
-        AWSService(name=f"{engine.title()} Database", service="RDS", instance_type=db, config={"engine": engine, "multi_az": req.scale != ScaleHint.HOBBY}),
+        AWSService(
+            name="VPC", service="VPC", config={"cidr": "10.0.0.0/16", "private_subnets": True}
+        ),
+        AWSService(
+            name=f"{engine.title()} Database",
+            service="RDS",
+            instance_type=db,
+            config={"engine": engine, "multi_az": req.scale != ScaleHint.HOBBY},
+        ),
         AWSService(name="Secrets", service="SecretsManager"),
     ]
     steps = [
-        DeployStep(order=1, name="VPC", description="Create private database network", aws_service="EC2", estimated_duration_seconds=15),
-        DeployStep(order=2, name="Security Groups", description="Restrict database ingress", aws_service="EC2", estimated_duration_seconds=10),
-        DeployStep(order=3, name="Database", description=f"Provision encrypted RDS {engine}", aws_service="RDS", estimated_duration_seconds=180, rollback_action="delete_db_instance"),
-        DeployStep(order=4, name="Secrets", description="Store generated credentials", aws_service="SecretsManager", estimated_duration_seconds=10),
-        DeployStep(order=5, name="Monitoring", description="RDS CPU, storage, and connection alarms", aws_service="CloudWatch", estimated_duration_seconds=15),
+        DeployStep(
+            order=1,
+            name="VPC",
+            description="Create private database network",
+            aws_service="EC2",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="Security Groups",
+            description="Restrict database ingress",
+            aws_service="EC2",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=3,
+            name="Database",
+            description=f"Provision encrypted RDS {engine}",
+            aws_service="RDS",
+            estimated_duration_seconds=180,
+            rollback_action="delete_db_instance",
+        ),
+        DeployStep(
+            order=4,
+            name="Secrets",
+            description="Store generated credentials",
+            aws_service="SecretsManager",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=5,
+            name="Monitoring",
+            description="RDS CPU, storage, and connection alarms",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=15,
+        ),
     ]
     return ArchitectureBlueprint(
         recipe_id="database-v1",
@@ -350,7 +575,9 @@ def _database_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
 
 
 def _ecommerce_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
-    base = _api_recipe(req.model_copy(update={"database": DatabaseType.POSTGRES, "cdn_required": True}))
+    base = _api_recipe(
+        req.model_copy(update={"database": DatabaseType.POSTGRES, "cdn_required": True})
+    )
     services = [
         *base.aws_services,
         AWSService(name="Product Media", service="S3", config={"versioning": True}),
@@ -379,20 +606,68 @@ def _microservices_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
     services = [
         AWSService(name="VPC", service="VPC", config={"cidr": "10.0.0.0/16", "az_count": 2}),
         AWSService(name="ECS Cluster", service="ECS", config={"launch_type": "EC2"}),
-        AWSService(name="Service Nodes", service="EC2", instance_type=ec2, config={"min": 2, "max": 10}),
+        AWSService(
+            name="Service Nodes", service="EC2", instance_type=ec2, config={"min": 2, "max": 10}
+        ),
         AWSService(name="Internal ALB", service="ALB", config={"scheme": "internal"}),
         AWSService(name="Public ALB", service="ALB", config={"scheme": "internet-facing"}),
-        AWSService(name="Shared Postgres", service="RDS", instance_type=db, config={"engine": "postgres"}),
+        AWSService(
+            name="Shared Postgres", service="RDS", instance_type=db, config={"engine": "postgres"}
+        ),
         AWSService(name="Service Queue", service="SQS"),
     ]
     steps = [
-        DeployStep(order=1, name="VPC", description="Create multi-AZ network", aws_service="EC2", estimated_duration_seconds=15),
-        DeployStep(order=2, name="ECS Cluster", description="Create cluster and capacity provider", aws_service="ECS", estimated_duration_seconds=45),
-        DeployStep(order=3, name="Database", description="Provision shared Postgres", aws_service="RDS", estimated_duration_seconds=180, rollback_action="delete_db_instance"),
-        DeployStep(order=4, name="Load Balancers", description="Create public and internal ALBs", aws_service="ALB", estimated_duration_seconds=45),
-        DeployStep(order=5, name="Services", description=f"Launch service nodes on {ec2}", aws_service="EC2", estimated_duration_seconds=75, rollback_action="terminate_instances"),
-        DeployStep(order=6, name="Queue", description="Create async service queue", aws_service="SQS", estimated_duration_seconds=10),
-        DeployStep(order=7, name="Monitoring", description="Service-level alarms and dashboards", aws_service="CloudWatch", estimated_duration_seconds=20),
+        DeployStep(
+            order=1,
+            name="VPC",
+            description="Create multi-AZ network",
+            aws_service="EC2",
+            estimated_duration_seconds=15,
+        ),
+        DeployStep(
+            order=2,
+            name="ECS Cluster",
+            description="Create cluster and capacity provider",
+            aws_service="ECS",
+            estimated_duration_seconds=45,
+        ),
+        DeployStep(
+            order=3,
+            name="Database",
+            description="Provision shared Postgres",
+            aws_service="RDS",
+            estimated_duration_seconds=180,
+            rollback_action="delete_db_instance",
+        ),
+        DeployStep(
+            order=4,
+            name="Load Balancers",
+            description="Create public and internal ALBs",
+            aws_service="ALB",
+            estimated_duration_seconds=45,
+        ),
+        DeployStep(
+            order=5,
+            name="Services",
+            description=f"Launch service nodes on {ec2}",
+            aws_service="EC2",
+            estimated_duration_seconds=75,
+            rollback_action="terminate_instances",
+        ),
+        DeployStep(
+            order=6,
+            name="Queue",
+            description="Create async service queue",
+            aws_service="SQS",
+            estimated_duration_seconds=10,
+        ),
+        DeployStep(
+            order=7,
+            name="Monitoring",
+            description="Service-level alarms and dashboards",
+            aws_service="CloudWatch",
+            estimated_duration_seconds=20,
+        ),
     ]
     return ArchitectureBlueprint(
         recipe_id="microservices-v1",

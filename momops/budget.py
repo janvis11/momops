@@ -17,6 +17,7 @@ from momops.models import (
     ScaleHint,
 )
 
+
 @dataclass(frozen=True)
 class PriceTable:
     """Static monthly pricing table used for tests and offline estimates."""
@@ -113,7 +114,9 @@ class PricingEngine:
                     monthly_usd=self.prices.rds[db],
                 )
             )
-        return CostBreakdown(items=items, savings_available=round(self.prices.ec2[compute] * 0.4, 2))
+        return CostBreakdown(
+            items=items, savings_available=round(self.prices.ec2[compute] * 0.4, 2)
+        )
 
     def estimate_blueprint(self, blueprint: ArchitectureBlueprint) -> CostBreakdown:
         """Estimate a blueprint from its AWS services."""

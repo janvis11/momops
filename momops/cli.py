@@ -31,8 +31,12 @@ console = Console()
 
 def _print_banner() -> None:
     banner = Text()
-    banner.append("  ███╗   ███╗ ██████╗ ███╗   ███╗ ██████╗ ██████╗ ███████╗\n", style="bold green")
-    banner.append("  ████╗ ████║██╔═══██╗████╗ ████║██╔═══██╗██╔══██╗██╔════╝\n", style="bold green")
+    banner.append(
+        "  ███╗   ███╗ ██████╗ ███╗   ███╗ ██████╗ ██████╗ ███████╗\n", style="bold green"
+    )
+    banner.append(
+        "  ████╗ ████║██╔═══██╗████╗ ████║██╔═══██╗██╔══██╗██╔════╝\n", style="bold green"
+    )
     banner.append("  ██╔████╔██║██║   ██║██╔████╔██║██║   ██║██████╔╝███████╗\n", style="green")
     banner.append("  ██║╚██╔╝██║██║   ██║██║╚██╔╝██║██║   ██║██╔═══╝ ╚════██║\n", style="green")
     banner.append("  ██║ ╚═╝ ██║╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██║     ███████║\n", style="dim green")
@@ -59,7 +63,10 @@ def _cost_table(cost_data: dict) -> Table:
 
     table.add_section()
     table.add_row("[bold]Total Monthly[/]", f"[bold yellow]${cost_data['total_monthly']:.2f}[/]")
-    table.add_row("Annual Estimate", f"${cost_data.get('estimated_annual', cost_data['total_monthly'] * 12):.2f}")
+    table.add_row(
+        "Annual Estimate",
+        f"${cost_data.get('estimated_annual', cost_data['total_monthly'] * 12):.2f}",
+    )
 
     if "savings_available" in cost_data:
         table.add_row(
@@ -101,20 +108,26 @@ def deploy(
             console=console,
             transient=False,
         ) as progress:
-            task = progress.add_task("Deploying...", total=len(app_obj._get_blueprint().deploy_steps))
+            task = progress.add_task(
+                "Deploying...", total=len(app_obj._get_blueprint().deploy_steps)
+            )
             async for event in app_obj.deploy_async():
-                progress.update(task, description=f"[cyan]{event.step}[/] — {event.message}", advance=1)
+                progress.update(
+                    task, description=f"[cyan]{event.step}[/] — {event.message}", advance=1
+                )
 
         result = app_obj._deployed
         if result:
-            console.print(Panel(
-                f"[bold green]🚀 Deployment complete![/]\n\n"
-                f"[cyan]Endpoint:[/] {result.endpoint}\n"
-                f"[cyan]App ID:[/]   {result.app_id}\n"
-                f"[cyan]Region:[/]   {result.region}",
-                title="[bold green]Success[/]",
-                border_style="green",
-            ))
+            console.print(
+                Panel(
+                    f"[bold green]🚀 Deployment complete![/]\n\n"
+                    f"[cyan]Endpoint:[/] {result.endpoint}\n"
+                    f"[cyan]App ID:[/]   {result.app_id}\n"
+                    f"[cyan]Region:[/]   {result.region}",
+                    title="[bold green]Success[/]",
+                    border_style="green",
+                )
+            )
 
     asyncio.run(_run())
 
@@ -248,7 +261,9 @@ def logs(
         console.print(f"[red]No deployment found for {app_id!r}.[/]")
         raise typer.Exit(1)
     console.print(f"[green]Last {tail} local events for [cyan]{record.app_id}[/]:[/]")
-    console.print("[dim]CloudWatch Logs streaming is available after real AWS provisioning is enabled.[/]")
+    console.print(
+        "[dim]CloudWatch Logs streaming is available after real AWS provisioning is enabled.[/]"
+    )
     return
 
 
@@ -272,7 +287,9 @@ def destroy(
         console.print(f"[red]No deployment found for {app_id!r}.[/]")
         raise typer.Exit(1)
     console.print(f"[green]Marked {record.app_id} as destroyed in local state.[/]")
-    console.print("[dim]AWS teardown hooks will use stored resource IDs when real provisioning is enabled.[/]")
+    console.print(
+        "[dim]AWS teardown hooks will use stored resource IDs when real provisioning is enabled.[/]"
+    )
     return
 
 
@@ -287,14 +304,16 @@ def talk() -> None:
 @app.command()
 def auth() -> None:
     """Configure AWS credentials and budget guardrails."""
-    console.print(Panel(
-        "[bold]Setting up MomOps credentials[/]\n\n"
-        "Mom needs your AWS credentials to provision infrastructure.\n"
-        "These are stored securely in [cyan]~/.momops/credentials[/]\n\n"
-        "[dim]Tip: Use an IAM user with least-privilege policies — Mom will tell you exactly which ones.[/]",
-        title="[green]MomOps Auth[/]",
-        border_style="green",
-    ))
+    console.print(
+        Panel(
+            "[bold]Setting up MomOps credentials[/]\n\n"
+            "Mom needs your AWS credentials to provision infrastructure.\n"
+            "These are stored securely in [cyan]~/.momops/credentials[/]\n\n"
+            "[dim]Tip: Use an IAM user with least-privilege policies — Mom will tell you exactly which ones.[/]",
+            title="[green]MomOps Auth[/]",
+            border_style="green",
+        )
+    )
 
     aws_key = typer.prompt("AWS Access Key ID")
     aws_secret = typer.prompt("AWS Secret Access Key", hide_input=True)

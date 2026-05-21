@@ -26,6 +26,7 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in minimal local env
     class ClientError(Exception):
         """Fallback when botocore is not installed."""
 
+
 from momops.models import (
     ArchitectureBlueprint,
     DeployEvent,
@@ -55,7 +56,7 @@ class Deployer:
     def __init__(self, blueprint: ArchitectureBlueprint, dry_run: bool = False) -> None:
         self.blueprint = blueprint
         self.dry_run = dry_run
-        self._provisioned: dict[str, str] = {}   # resource_name → aws_id
+        self._provisioned: dict[str, str] = {}  # resource_name → aws_id
         self._start_time = 0.0
         self._result: DeployedApp | None = None
 
@@ -109,7 +110,9 @@ class Deployer:
         region = req.region
 
         if boto3 is None:
-            raise DeploymentError("boto3 is required for real AWS deployments; use dry_run=True locally")
+            raise DeploymentError(
+                "boto3 is required for real AWS deployments; use dry_run=True locally"
+            )
 
         session = boto3.session.Session(region_name=region)
         session.client("ec2")

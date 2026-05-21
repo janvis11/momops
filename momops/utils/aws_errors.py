@@ -40,7 +40,7 @@ class AWSRetryConfig:
 
     def get_delay(self, attempt: int) -> float:
         """Calculate delay for retry attempt."""
-        delay = self.initial_delay * (self.backoff_factor ** attempt)
+        delay = self.initial_delay * (self.backoff_factor**attempt)
         # Add jitter to prevent thundering herd
         jitter = random.uniform(0, delay * 0.1)
         return min(delay + jitter, self.max_delay)
@@ -104,17 +104,16 @@ async def retry_with_backoff(
             if attempt < config.max_attempts - 1:
                 delay = config.get_delay(attempt)
                 logger.warning(
-                    f"AWS {operation} failed (attempt {attempt + 1}), "
-                    f"retrying in {delay:.2f}s: {e}"
+                    f"AWS {operation} failed (attempt {attempt + 1}), retrying in {delay:.2f}s: {e}"
                 )
                 await asyncio.sleep(delay)
             else:
-                logger.error(
-                    f"AWS {operation} failed after {config.max_attempts} attempts: {e}"
-                )
+                logger.error(f"AWS {operation} failed after {config.max_attempts} attempts: {e}")
 
     # All retries exhausted
-    raise ProviderError("AWS", operation, f"Failed after {config.max_attempts} retries") from last_error
+    raise ProviderError(
+        "AWS", operation, f"Failed after {config.max_attempts} retries"
+    ) from last_error
 
 
 def aws_retry(

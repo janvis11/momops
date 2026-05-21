@@ -40,7 +40,9 @@ class AWSProvider:
         )
 
     @staticmethod
-    def tags(app_id: str, name: str, extra: Mapping[str, str] | None = None) -> list[dict[str, str]]:
+    def tags(
+        app_id: str, name: str, extra: Mapping[str, str] | None = None
+    ) -> list[dict[str, str]]:
         """Build common AWS tag structures."""
         tag_map = {
             "ManagedBy": "MomOps",

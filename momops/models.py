@@ -27,9 +27,9 @@ class ServiceType(StrEnum):
 
 
 class ScaleHint(StrEnum):
-    HOBBY = "hobby"        # <1k req/day, single instance, no HA
-    STARTUP = "startup"    # <100k req/day, basic autoscaling
-    SCALE = "scale"        # >100k req/day, multi-AZ, caching
+    HOBBY = "hobby"  # <1k req/day, single instance, no HA
+    STARTUP = "startup"  # <100k req/day, basic autoscaling
+    SCALE = "scale"  # >100k req/day, multi-AZ, caching
     ENTERPRISE = "enterprise"  # custom, multi-region
 
 
@@ -136,13 +136,15 @@ class SecurityManifest(BaseModel):
 
     @property
     def is_production_ready(self) -> bool:
-        return all([
-            self.ssl_enabled,
-            self.backup_enabled,
-            self.vpc_isolated,
-            self.iam_least_privilege,
-            self.monitoring_enabled,
-        ])
+        return all(
+            [
+                self.ssl_enabled,
+                self.backup_enabled,
+                self.vpc_isolated,
+                self.iam_least_privilege,
+                self.monitoring_enabled,
+            ]
+        )
 
 
 # ── Architecture blueprint ─────────────────────────────────────────────────
@@ -152,7 +154,7 @@ class AWSService(BaseModel):
     """A single AWS service in the deployment blueprint."""
 
     name: str
-    service: str          # e.g. "EC2", "RDS", "ALB"
+    service: str  # e.g. "EC2", "RDS", "ALB"
     instance_type: str | None = None
     config: dict[str, Any] = Field(default_factory=dict)
 
