@@ -63,7 +63,9 @@ def validate_blueprint(blueprint: ArchitectureBlueprint) -> dict[str, Any]:
     # ── Warnings (non-blocking) ────────────────────────────────────────────
 
     if manifest.backup_retention_days < 7:
-        warnings.append(f"Backup retention is only {manifest.backup_retention_days} days (recommend 30+)")
+        warnings.append(
+            f"Backup retention is only {manifest.backup_retention_days} days (recommend 30+)"
+        )
 
     if not manifest.encryption_at_rest:
         warnings.append("Encryption at rest is disabled")
@@ -130,9 +132,6 @@ def apply_security_defaults(blueprint: ArchitectureBlueprint) -> ArchitectureBlu
         manifest.encryption_in_transit = True
 
     return blueprint
-        raise SecurityViolationError(msg)
-
-    logger.info("Security validation passed (%d rules applied)", len(manifest.applied_rules))
 
 
 def enforce_defaults(manifest: SecurityManifest) -> SecurityManifest:
