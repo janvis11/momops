@@ -208,7 +208,9 @@ def optimize(blueprint: ArchitectureBlueprint) -> list[OptimizationSuggestion]:
             OptimizationSuggestion(
                 for_=OptimizeFor.COST,
                 title="Use spot capacity for stateless compute",
-                description="Move autoscaled API and worker nodes to a mixed on-demand/spot policy.",
+                description=(
+                    "Move autoscaled API and worker nodes to a mixed on-demand/spot policy."
+                ),
                 monthly_savings_usd=blueprint.cost.savings_available,
                 trade_off="Spot nodes can be interrupted, so keep at least one on-demand instance.",
                 apply_command=f"momops update {blueprint.recipe_id} --spot-mix 60",

@@ -593,7 +593,9 @@ def _ecommerce_recipe(req: InfraRequirement) -> ArchitectureBlueprint:
         update={
             "recipe_id": "ecommerce-v1",
             "recipe_name": "Ecommerce Platform",
-            "description": "Autoscaled storefront API with Postgres, CDN, media storage, and order queue",
+            "description": (
+                "Autoscaled storefront API with Postgres, CDN, media storage, and order queue"
+            ),
             "aws_services": services,
             "cost": CostBreakdown(items=items, savings_available=base.cost.savings_available),
         }

@@ -150,17 +150,16 @@ def handle_iam_error(error: Exception) -> str:
     """Generate helpful message for IAM errors."""
     code = getattr(error, "response", {}).get("Error", {}).get("Code", "")
 
-    if code == "AccessDenied":
-        return (
+    error_messages = {
+        "AccessDenied": (
             "IAM permission denied. Ensure your AWS user has permissions for: "
             "ec2, rds, elasticloadbalancing, iam, s3, route53, cloudwatch"
-        )
-    elif code == "InvalidClientTokenId":
-        return "AWS credentials are invalid or expired"
-    elif code == "SignatureDoesNotMatch":
-        return "AWS signature mismatch (bad secret key?)"
+        ),
+        "InvalidClientTokenId": "AWS credentials are invalid or expired",
+        "SignatureDoesNotMatch": "AWS signature mismatch (bad secret key?)",
+    }
 
-    return f"IAM error: {code}"
+    return error_messages.get(code, f"IAM error: {code}")
 
 
 def handle_ec2_error(error: Exception) -> str:

@@ -309,7 +309,8 @@ def auth() -> None:
             "[bold]Setting up MomOps credentials[/]\n\n"
             "Mom needs your AWS credentials to provision infrastructure.\n"
             "These are stored securely in [cyan]~/.momops/credentials[/]\n\n"
-            "[dim]Tip: Use an IAM user with least-privilege policies — Mom will tell you exactly which ones.[/]",
+            "[dim]Tip: Use an IAM user with least-privilege policies — Mom will "
+            "tell you exactly which ones.[/]",
             title="[green]MomOps Auth[/]",
             border_style="green",
         )

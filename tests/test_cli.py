@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from typer.testing import CliRunner
 
@@ -23,7 +23,7 @@ def test_cli_list_empty_state() -> None:
 
 
 def test_cli_update_state_record() -> None:
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     StateStore().save(
         [
             DeploymentRecord(

@@ -13,8 +13,10 @@ class _FakeMessages:
         return SimpleNamespace(
             content=[
                 SimpleNamespace(
-                    text='{"suggestions":[{"title":"Rightsize","description":"Use smaller nodes",'
-                    '"monthly_savings_usd":12,"trade_off":"Less headroom","apply_command":"momops update"}]}'
+                    text=""
+                    '{"suggestions":[{"title":"Rightsize","description":"Use smaller '
+                    'nodes","monthly_savings_usd":12,"trade_off":"Less headroom",'
+                    '"apply_command":"momops update"}]}'
                 )
             ]
         )
