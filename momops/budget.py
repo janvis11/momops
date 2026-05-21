@@ -196,7 +196,8 @@ def enforce_budget(blueprint: ArchitectureBlueprint, limit: float | None = None)
         return
     if blueprint.cost.total_monthly > budget:
         raise BudgetExceededError(
-            f"Estimated ${blueprint.cost.total_monthly:.2f}/mo exceeds budget ${budget:.2f}/mo"
+            estimated=blueprint.cost.total_monthly,
+            limit=budget,
         )
 
 

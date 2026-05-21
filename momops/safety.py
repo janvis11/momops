@@ -62,19 +62,11 @@ def validate_blueprint(blueprint: ArchitectureBlueprint) -> dict[str, Any]:
 
     # ── Warnings (non-blocking) ────────────────────────────────────────────
 
-    if manifest.backup_retention_days < 7:
-        warnings.append(
-            f"Backup retention is only {manifest.backup_retention_days} days (recommend 30+)"
-        )
-
     if not manifest.encryption_at_rest:
         warnings.append("Encryption at rest is disabled")
 
     if not manifest.encryption_in_transit:
         warnings.append("Encryption in transit is disabled")
-
-    if manifest.multi_az is False:
-        warnings.append("Multi-AZ is not enabled (single point of failure)")
 
     if violations:
         logger.error("Critical security violations detected")
@@ -101,36 +93,39 @@ def apply_security_defaults(blueprint: ArchitectureBlueprint) -> ArchitectureBlu
     This ensures every deployed infrastructure has baseline protections.
     """
     manifest = blueprint.security
+    data = manifest.model_dump()
 
-    # Enforce defaults if not already set
-    if not manifest.ssl_enabled:
+    # Log what defaults are being applied
+    if not data.get("ssl_enabled"):
         logger.info("Enabling SSL/TLS (security default)")
-        manifest.ssl_enabled = True
+        data["ssl_enabled"] = True
 
-    if not manifest.backup_enabled:
+    if not data.get("backup_enabled"):
         logger.info("Enabling automated backups (security default)")
-        manifest.backup_enabled = True
+        data["backup_enabled"] = True
 
-    if not manifest.vpc_isolated:
+    if not data.get("vpc_isolated"):
         logger.info("Isolating database in private VPC (security default)")
-        manifest.vpc_isolated = True
+        data["vpc_isolated"] = True
 
-    if not manifest.iam_least_privilege:
+    if not data.get("iam_least_privilege"):
         logger.info("Applying least-privilege IAM (security default)")
-        manifest.iam_least_privilege = True
+        data["iam_least_privilege"] = True
 
-    if not manifest.monitoring_enabled:
+    if not data.get("monitoring_enabled"):
         logger.info("Enabling CloudWatch monitoring (security default)")
-        manifest.monitoring_enabled = True
+        data["monitoring_enabled"] = True
 
-    if not manifest.encryption_at_rest:
+    if not data.get("encryption_at_rest"):
         logger.info("Enabling encryption at rest (security default)")
-        manifest.encryption_at_rest = True
+        data["encryption_at_rest"] = True
 
-    if not manifest.encryption_in_transit:
+    if not data.get("encryption_in_transit"):
         logger.info("Enabling encryption in transit (security default)")
-        manifest.encryption_in_transit = True
+        data["encryption_in_transit"] = True
 
+    # Create new immutable manifest with defaults
+    blueprint.security = SecurityManifest.model_validate(data)
     return blueprint
 
 

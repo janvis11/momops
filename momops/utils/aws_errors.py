@@ -120,7 +120,7 @@ async def retry_with_backoff(
 def aws_retry(
     max_attempts: int = 3,
     operation: str = "AWS operation",
-) -> Callable:
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Decorator for async functions to add AWS retry logic.
 
     Args:
@@ -128,7 +128,7 @@ def aws_retry(
         operation: Operation name for logging
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             config = AWSRetryConfig(max_attempts=max_attempts)

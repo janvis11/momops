@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-try:
+if TYPE_CHECKING:
     import boto3
     from botocore.config import Config
-except ModuleNotFoundError:  # pragma: no cover - exercised in minimal local envs
+
+try:
+    import boto3  # noqa: F811
+    from botocore.config import Config  # noqa: F811
+except ModuleNotFoundError:  # pragma: no cover
     boto3 = None  # type: ignore[assignment]
     Config = None  # type: ignore[assignment]
 

@@ -253,10 +253,18 @@ class MomSession:
             model="claude-sonnet-4-20250514",
             max_tokens=512,
             system=MOM_TALK_SYSTEM,
-            messages=self._history,
+            messages=self._history,  # type: ignore[arg-type]
         )
 
-        reply = response.content[0].text
+        # Extract text from first TextBlock in response
+        text_block = next(
+            (block for block in response.content if hasattr(block, "text")),
+            None,
+        )
+        if not text_block or not hasattr(text_block, "text"):
+            raise ValueError("No text in response")
+
+        reply = text_block.text
         self._history.append({"role": "assistant", "content": reply})
         return reply
 

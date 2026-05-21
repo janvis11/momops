@@ -74,7 +74,16 @@ def optimize(
         ],
     )
 
-    raw = message.content[0].text.strip()
+    # Extract text from first TextBlock in response
+    text_block = next(
+        (block for block in message.content if hasattr(block, "text")),
+        None,
+    )
+    if not text_block or not hasattr(text_block, "text"):
+        logger.warning("Optimizer returned no text — returning empty suggestions")
+        return []
+
+    raw = text_block.text.strip()
 
     try:
         data: dict[str, Any] = json.loads(raw)

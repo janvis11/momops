@@ -71,7 +71,15 @@ def parse_intent(intent: str, region: str = "us-east-1") -> InfraRequirement:
         ],
     )
 
-    raw = message.content[0].text.strip()
+    # Extract text from first TextBlock in response
+    text_block = next(
+        (block for block in message.content if hasattr(block, "text")),
+        None,
+    )
+    if not text_block or not hasattr(text_block, "text"):
+        raise IntentParsingError("LLM response contained no text")
+
+    raw = text_block.text.strip()
     logger.debug("Raw LLM response: %s", raw)
 
     try:
@@ -108,7 +116,15 @@ async def parse_intent_async(intent: str, region: str = "us-east-1") -> InfraReq
         ],
     )
 
-    raw = message.content[0].text.strip()
+    # Extract text from first TextBlock in response
+    text_block = next(
+        (block for block in message.content if hasattr(block, "text")),
+        None,
+    )
+    if not text_block or not hasattr(text_block, "text"):
+        raise IntentParsingError("LLM response contained no text")
+
+    raw = text_block.text.strip()
 
     try:
         data: dict[str, Any] = json.loads(raw)

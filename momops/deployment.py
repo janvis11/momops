@@ -17,14 +17,8 @@ from datetime import UTC, datetime
 try:
     import boto3
     from botocore.exceptions import BotoCoreError, ClientError
-except ModuleNotFoundError:  # pragma: no cover - exercised in minimal local envs
-    boto3 = None  # type: ignore[assignment]
-
-    class BotoCoreError(Exception):
-        """Fallback when botocore is not installed."""
-
-    class ClientError(Exception):
-        """Fallback when botocore is not installed."""
+except ModuleNotFoundError:  # pragma: no cover
+    raise ImportError("boto3 is required for MomOps deployment")
 
 
 from momops.models import (

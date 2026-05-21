@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -36,7 +37,7 @@ class MomOpsSettings(BaseSettings):
     pricing_mode: str = "static"
     deployment_timeout: int = 1800  # 30 minutes
 
-    def model_post_init(self, __context: any) -> None:
+    def model_post_init(self, __context: Any) -> None:
         """Post-initialization validation."""
         # Ensure state directory exists
         self.state_dir.mkdir(parents=True, exist_ok=True)

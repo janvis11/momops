@@ -95,12 +95,12 @@ class CostBreakdown(BaseModel):
     savings_available: float = 0.0
     currency: str = "USD"
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def total_monthly(self) -> float:
         return round(sum(i.monthly_usd for i in self.items), 2)
 
-    @computed_field  # type: ignore[misc]
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def estimated_annual(self) -> float:
         return round(self.total_monthly * 12, 2)

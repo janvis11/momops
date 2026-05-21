@@ -124,7 +124,7 @@ def configure_logging(
         root_logger.addHandler(file_handler)
 
 
-def get_logger(name: str) -> logging.LoggerAdapter:
+def get_logger(name: str) -> logging.LoggerAdapter[Any]:
     """Get a logger with context support."""
     logger = logging.getLogger(name)
     return logging.LoggerAdapter(logger, {})

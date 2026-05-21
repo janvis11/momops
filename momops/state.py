@@ -42,7 +42,10 @@ class StateStore:
         try:
             data = json.loads(self.path.read_text(encoding="utf-8"))
         except OSError as exc:
-            raise StateError(f"Could not read state file: {self.path}") from exc
+            raise StateError(
+                operation="read",
+                reason=f"Could not read state file: {self.path}",
+            ) from exc
         return [DeploymentRecord.model_validate(item) for item in data]
 
     def save(self, records: list[DeploymentRecord]) -> None:
@@ -52,7 +55,10 @@ class StateStore:
         try:
             self.path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         except OSError as exc:
-            raise StateError(f"Could not write state file: {self.path}") from exc
+            raise StateError(
+                operation="write",
+                reason=f"Could not write state file: {self.path}",
+            ) from exc
 
     def upsert_app(self, app: DeployedApp, status: str = "deployed") -> DeploymentRecord:
         """Insert or update a deployment from a DeployedApp."""

@@ -6,7 +6,7 @@ Typer + Rich — beautiful, expressive terminal commands.
 from __future__ import annotations
 
 import asyncio
-from typing import Annotated
+from typing import Annotated, Any
 
 import typer
 from rich import box
@@ -45,7 +45,7 @@ def _print_banner() -> None:
     console.print(Panel(banner, border_style="green", padding=(0, 2)))
 
 
-def _cost_table(cost_data: dict) -> Table:
+def _cost_table(cost_data: dict[str, Any]) -> Table:
     table = Table(
         title="💰 Cost Preview",
         box=box.ROUNDED,
