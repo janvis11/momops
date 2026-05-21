@@ -18,8 +18,8 @@ from momops.budget import optimize as static_optimize
 from momops.config import get_settings
 from momops.models import (
     ArchitectureBlueprint,
-    OptimizeFor,
     OptimizationSuggestion,
+    OptimizeFor,
 )
 from momops.utils.prompts import OPTIMIZER_SYSTEM, OPTIMIZER_USER
 

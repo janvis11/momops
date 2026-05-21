@@ -5,9 +5,10 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import TypeVar, Callable, Any
-from functools import wraps
 from collections import defaultdict, deque
+from collections.abc import Callable
+from functools import wraps
+from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
 

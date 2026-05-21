@@ -11,8 +11,6 @@ from typing import Any
 
 from rich.logging import RichHandler
 
-from momops.config import get_settings
-
 
 class StructuredFormatter(logging.Formatter):
     """Outputs logs as structured JSON for production systems."""

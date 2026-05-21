@@ -12,7 +12,7 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncGenerator
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 try:
     import boto3
@@ -29,8 +29,8 @@ except ModuleNotFoundError:  # pragma: no cover - exercised in minimal local env
 
 from momops.models import (
     ArchitectureBlueprint,
-    DeployEvent,
     DeployedApp,
+    DeployEvent,
     DeployStatus,
 )
 from momops.safety import validate_blueprint
@@ -187,7 +187,7 @@ class Deployer:
             region=self.blueprint.requirement.region,
             blueprint=self.blueprint,
             aws_resource_ids=self._provisioned.copy(),
-            deployed_at=datetime.now(timezone.utc).isoformat(),
+            deployed_at=datetime.now(UTC).isoformat(),
         )
 
 

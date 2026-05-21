@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -56,7 +56,7 @@ class StateStore:
 
     def upsert_app(self, app: DeployedApp, status: str = "deployed") -> DeploymentRecord:
         """Insert or update a deployment from a DeployedApp."""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         record = DeploymentRecord(
             app_id=app.app_id,
             name=app.name,
@@ -83,7 +83,7 @@ class StateStore:
     def mark_destroyed(self, app_id: str) -> DeploymentRecord | None:
         """Mark a record destroyed without deleting history."""
         records = self.load()
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         found: DeploymentRecord | None = None
         updated: list[DeploymentRecord] = []
         for record in records:
@@ -106,7 +106,7 @@ class StateStore:
     ) -> DeploymentRecord | None:
         """Update editable local metadata for a deployment record."""
         records = self.load()
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         found: DeploymentRecord | None = None
         updated: list[DeploymentRecord] = []
         for record in records:

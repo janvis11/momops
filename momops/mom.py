@@ -15,11 +15,11 @@ from momops.config import get_settings
 from momops.deployment import Deployer, deploy_blueprint
 from momops.models import (
     ArchitectureBlueprint,
-    DeployEvent,
     DeployedApp,
+    DeployEvent,
     InfraRequirement,
-    OptimizeFor,
     OptimizationSuggestion,
+    OptimizeFor,
 )
 from momops.optimizer import optimize
 from momops.recipes import get_blueprint
@@ -243,6 +243,7 @@ class MomSession:
     def chat(self, user_message: str) -> str:
         """Send a message to Mom and get a response."""
         import anthropic
+
         from momops.utils.prompts import MOM_TALK_SYSTEM
 
         self._history.append({"role": "user", "content": user_message})

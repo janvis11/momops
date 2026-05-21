@@ -9,8 +9,8 @@ from __future__ import annotations
 import logging
 
 from momops.models import (
-    AWSService,
     ArchitectureBlueprint,
+    AWSService,
     CostBreakdown,
     DatabaseType,
     DeployStep,

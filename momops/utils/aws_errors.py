@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
-from typing import TypeVar, Callable, Any
+from collections.abc import Callable
 from functools import wraps
+from typing import Any, TypeVar
 
 from momops.exceptions import ProviderError
 

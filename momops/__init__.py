@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from momops.mom import MomApp, MomSession, talk_to_mom
 from momops.models import (
     ArchitectureBlueprint,
     CostBreakdown,
-    DeployEvent,
     DeployedApp,
+    DeployEvent,
     InfraRequirement,
     OptimizationSuggestion,
 )
+from momops.mom import MomApp, MomSession, talk_to_mom
 
 __all__ = [
     "ArchitectureBlueprint",
