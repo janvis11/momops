@@ -59,7 +59,6 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "ANN"]
-ignore = ["ANN101", "ANN102"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["momops"]
