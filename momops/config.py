@@ -1,5 +1,3 @@
-"""Environment-backed settings for MomOps."""
-
 from __future__ import annotations
 
 from functools import lru_cache
