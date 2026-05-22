@@ -14,13 +14,6 @@ import uuid
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 
-try:
-    import boto3
-    from botocore.exceptions import BotoCoreError, ClientError
-except ModuleNotFoundError as err:  # pragma: no cover
-    raise ImportError("boto3 is required for MomOps deployment") from err
-
-
 from momops.models import (
     ArchitectureBlueprint,
     DeployedApp,
@@ -28,6 +21,12 @@ from momops.models import (
     DeployStatus,
 )
 from momops.safety import validate_blueprint
+
+try:
+    import boto3
+    from botocore.exceptions import BotoCoreError, ClientError
+except ModuleNotFoundError as err:  # pragma: no cover
+    raise ImportError("boto3 is required for MomOps deployment") from err
 
 logger = logging.getLogger(__name__)
 
