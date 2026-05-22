@@ -10,7 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, computed_field
 
-# ── Enums ──────────────────────────────────────────────────────────────────
+# ── Enums ────────────────────────────────────────────────────────────────────
 
 
 class ServiceType(StrEnum):
@@ -72,7 +72,7 @@ class InfraRequirement(BaseModel):
     websocket_required: bool = False
     region: str = "us-east-1"
     budget_hint: float | None = Field(None, description="Max monthly spend hint in USD")
-    extra_hints: dict[str, Any] = Field(default_factory=dict)
+    extra_hints: dict[str, Any] = Field(default_factory=dict)  # noqa: ANN401
 
 
 # ── Pricing models ─────────────────────────────────────────────────────────
@@ -105,7 +105,7 @@ class CostBreakdown(BaseModel):
     def estimated_annual(self) -> float:
         return round(self.total_monthly * 12, 2)
 
-    def display(self) -> dict[str, Any]:
+    def display(self) -> dict[str, Any]:  # noqa: ANN401
         """Dict suitable for pretty-printing / preview()."""
         d: dict[str, Any] = {i.label: i.monthly_usd for i in self.items}
         d["total_monthly"] = self.total_monthly
@@ -155,7 +155,7 @@ class AWSService(BaseModel):
     name: str
     service: str  # e.g. "EC2", "RDS", "ALB"
     instance_type: str | None = None
-    config: dict[str, Any] = Field(default_factory=dict)
+    config: dict[str, Any] = Field(default_factory=dict)  # noqa: ANN401
 
 
 class DeployStep(BaseModel):
