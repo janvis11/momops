@@ -1,5 +1,3 @@
-"""Typed exception hierarchy for MomOps."""
-
 from __future__ import annotations
 
 from typing import Any
