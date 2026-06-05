@@ -65,6 +65,7 @@ known-first-party = ["momops"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["ANN"]
+"momops/config.py" = ["ANN401"]
 "momops/providers/aws.py" = ["ANN401"]
 "momops/utils/aws_errors.py" = ["ANN401"]
 "momops/utils/rate_limiter.py" = ["ANN401"]
