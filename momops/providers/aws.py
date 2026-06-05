@@ -14,7 +14,7 @@ else:
         from botocore.config import Config
     except ModuleNotFoundError:  # pragma: no cover
         boto3: Any = None
-        Config: Any = None  
+        Config: Any = None
 
 from momops.config import get_settings
 
