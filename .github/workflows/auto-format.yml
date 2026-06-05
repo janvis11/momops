@@ -1,0 +1,45 @@
+name: Auto-Format
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * *"  # Daily at 2 AM UTC
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: Install dependencies
+        run: uv sync --extra dev
+
+      - name: Format code with Ruff
+        run: uv run ruff format .
+
+      - name: Lint fixes with Ruff
+        run: uv run ruff check . --fix || true
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "style: auto-format code"
+          title: "style: auto-format code"
+          body: "Automated code formatting and linting fixes"
+          branch: auto-format/updates
+          delete-branch: true
+          labels: "automated,style"

@@ -1,0 +1,29 @@
+# MomOps Code Owners
+
+# Default owners for all files
+* @momops/maintainers
+
+# Core modules
+/momops/mom.py @momops/maintainers
+/momops/cli.py @momops/maintainers
+/momops/deployment.py @momops/maintainers
+/momops/providers/ @momops/maintainers
+/momops/recipes.py @momops/maintainers
+/momops/safety.py @momops/maintainers
+
+# Infrastructure and config
+/momops/config.py @momops/maintainers
+/momops/models.py @momops/maintainers
+/momops/state.py @momops/maintainers
+
+# Tests
+/tests/ @momops/maintainers
+
+# CI/CD
+/.github/ @momops/maintainers
+/Makefile @momops/maintainers
+/pyproject.toml @momops/maintainers
+
+# Documentation
+/docs/ @momops/maintainers
+/README.md @momops/maintainers
