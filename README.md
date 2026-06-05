@@ -1,83 +1,83 @@
-# MomOps
+# momops
 
-MomOps is a Python tool that turns plain English into cloud infrastructure.
+momops is a python tool that turns plain english into cloud infrastructure.
 
-You say what you need, like `I need an API with Postgres`, and MomOps turns it into a safe AWS deployment plan with a cost estimate before anything is deployed.
+you say what you need, like `i need an api with postgres`, and momops turns it into a safe aws deployment plan with a cost estimate before anything is deployed.
 
-## What Problem It Solves
+## what problem it solves
 
-Deploying cloud infrastructure is still too hard for small teams.
+deploying cloud infrastructure is still too hard for small teams.
 
-To ship a normal app, developers often need to understand VPCs, load balancers, databases, backups, IAM, SSL, monitoring, pricing, and rollback.
+to ship a normal app, developers often need to understand vpcs, load balancers, databases, backups, iam, ssl, monitoring, pricing, and rollback.
 
-MomOps makes that first step simple:
+momops makes that first step simple:
 
 - describe the app in normal language
 - see the expected monthly cost
 - get a production-minded architecture
 - validate security defaults
-- dry-run or deploy from Python or the CLI
+- dry-run or deploy from python or the cli
 
-## Features
+## features
 
-- Natural language infrastructure planning
-- AWS recipes for APIs, blogs, static sites, realtime apps, ML endpoints, databases, ecommerce, and microservices
-- Cost preview before deployment
-- Budget guardrails
-- Security defaults for SSL, backups, VPC isolation, monitoring, encryption, and least-privilege IAM
-- Dry-run mode that touches no cloud resources
-- Async deployment progress events
-- Automatic rollback flow on failure
-- Local deployment state in `~/.momops`
-- CLI commands for `preview`, `deploy`, `list`, `update`, `status`, `logs`, `destroy`, `auth`, and `talk`
-- Claude-powered parsing and optimization when `ANTHROPIC_API_KEY` is set
-- Local fallback parser for tests, demos, and offline previews
+- natural language infrastructure planning
+- aws recipes for apis, blogs, static sites, realtime apps, ml endpoints, databases, ecommerce, and microservices
+- cost preview before deployment
+- budget guardrails
+- security defaults for ssl, backups, vpc isolation, monitoring, encryption, and least-privilege iam
+- dry-run mode that touches no cloud resources
+- async deployment progress events
+- automatic rollback flow on failure
+- local deployment state in `~/.momops`
+- cli commands for `preview`, `deploy`, `list`, `update`, `status`, `logs`, `destroy`, `auth`, and `talk`
+- claude-powered parsing and optimization when `anthropic_api_key` is set
+- local fallback parser for tests, demos, and offline previews
 
-## Tech Stack
+## tech stack
 
-MomOps uses a modern stack chosen to stay useful through 2027-28:
+momops uses a modern stack chosen to stay useful through 2027-28:
 
-- Python 3.12+ with async-first code
-- Claude Sonnet for intent parsing and optimization
-- Pydantic v2 and pydantic-settings for typed models and config
-- boto3 and aioboto3 for AWS
-- Typer and Rich for the CLI
+- python 3.12+ with async-first code
+- claude sonnet for intent parsing and optimization
+- pydantic v2 and pydantic-settings for typed models and config
+- boto3 and aioboto3 for aws
+- typer and rich for the cli
 - httpx, anyio, and asyncio for network and async workflows
 - uv for packaging and dependency management
-- pytest, pytest-asyncio, moto, Ruff, and mypy for testing and quality
+- pytest, pytest-asyncio, moto, ruff, and mypy for testing and quality
 
-## How To Use
+## how to use
 
-Install MomOps:
+install momops:
 
 ```bash
 pip install momops
 ```
 
-For local development:
+for local development:
 
 ```bash
 uv sync --extra dev
 ```
 
-Preview a deployment:
+preview a deployment:
 
 ```bash
-momops preview "I need a startup API with Postgres and login"
+momops preview "i need a startup api with postgres and login"
 ```
 
-Run a safe dry-run:
+run a safe dry-run:
 
 ```bash
-momops deploy "I need a blog with images" --dry-run --yes
+momops deploy "i need a blog with images" --dry-run --yes
 ```
 
-Use it from Python:
+use it from python:
 
 ```python
 from momops import mom
 
-app = mom("I need a startup API with Postgres and login", dry_run=True)
+app = mom("i need a startup api with postgres and login", dry_run=True)
 
 cost = app.preview()
 print(cost)
@@ -85,18 +85,18 @@ print(cost)
 app.dry_run()
 ```
 
-Optional environment variables:
+optional environment variables:
 
 ```bash
-ANTHROPIC_API_KEY=...
-AWS_ACCESS_KEY_ID=...
-AWS_SECRET_ACCESS_KEY=...
-AWS_DEFAULT_REGION=us-east-1
-MOMOPS_BUDGET_LIMIT=100
-MOMOPS_DRY_RUN=true
+anthropic_api_key=...
+aws_access_key_id=...
+aws_secret_access_key=...
+aws_default_region=us-east-1
+momops_budget_limit=100
+momops_dry_run=true
 ```
 
-Run tests:
+run tests:
 
 ```bash
 python -m pytest
