@@ -31,6 +31,8 @@ class AWSProvider:
 
     def client(self, service_name: str) -> Any:
         """Create a boto3 client with conservative retry defaults."""
+        if Config is None:
+            return self.session.client(service_name)
         return self.session.client(
             service_name,
             config=Config(retries={"max_attempts": 10, "mode": "standard"}),
@@ -38,6 +40,8 @@ class AWSProvider:
 
     def resource(self, service_name: str) -> Any:
         """Create a boto3 resource with conservative retry defaults."""
+        if Config is None:
+            return self.session.resource(service_name)
         return self.session.resource(
             service_name,
             config=Config(retries={"max_attempts": 10, "mode": "standard"}),
