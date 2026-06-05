@@ -8,13 +8,13 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     import boto3
     from botocore.config import Config
-
-try:
-    import boto3  # noqa: F811
-    from botocore.config import Config  # noqa: F811
-except ModuleNotFoundError:  # pragma: no cover
-    boto3 = None  # type: ignore[assignment]
-    Config = None  # type: ignore[assignment]
+else:
+    try:
+        import boto3
+        from botocore.config import Config
+    except ModuleNotFoundError:  # pragma: no cover
+        boto3: Any = None
+        Config: Any = None  
 
 from momops.config import get_settings
 
