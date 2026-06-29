@@ -161,10 +161,10 @@ class AWSProvisioner:
                 response = self.ec2.describe_internet_gateways(
                     InternetGatewayIds=[resource.resource_id]
                 )
-                igw = response['InternetGateways'][0]
-                for attachment in igw['Attachments']:
+                igw = response["InternetGateways"][0]
+                for attachment in igw["Attachments"]:
                     self.ec2.detach_internet_gateway(
-                        InternetGatewayId=resource.resource_id, VpcId=attachment['VpcId']
+                        InternetGatewayId=resource.resource_id, VpcId=attachment["VpcId"]
                     )
             except self.ec2.exceptions.InvalidInternetGatewayID.NotFound:
                 # Already detached or deleted
@@ -180,8 +180,7 @@ class AWSProvisioner:
             self.rds.delete_db_subnet_group(DBSubnetGroupName=resource.resource_id)
         elif resource.resource_type == "rds_instance":
             self.rds.delete_db_instance(
-                DBInstanceIdentifier=resource.resource_id,
-                SkipFinalSnapshot=True
+                DBInstanceIdentifier=resource.resource_id, SkipFinalSnapshot=True
             )
         elif resource.resource_type == "ec2_instance":
             self.ec2.terminate_instances(InstanceIds=[resource.resource_id])
@@ -197,24 +196,24 @@ class AWSProvisioner:
                 self.s3.delete_bucket(Bucket=resource.resource_id)
             except self.s3.exceptions.BucketNotEmpty:
                 # Delete all objects
-                paginator = self.s3.get_paginator('list_object_v2')
+                paginator = self.s3.get_paginator("list_object_v2")
                 for page in paginator.paginate(Bucket=resource.resource_id):
-                    for obj in page.get('Contents', []):
-                        self.s3.delete_object(Bucket=resource.resource_id, Key=obj['Key'])
+                    for obj in page.get("Contents", []):
+                        self.s3.delete_object(Bucket=resource.resource_id, Key=obj["Key"])
                 # Delete all object versions if versioning was enabled
-                paginator = self.s3.get_paginator('list_object_versions')
+                paginator = self.s3.get_paginator("list_object_versions")
                 for page in paginator.paginate(Bucket=resource.resource_id):
-                    for version in page.get('Versions', []):
+                    for version in page.get("Versions", []):
                         self.s3.delete_object(
                             Bucket=resource.resource_id,
-                            Key=version['Key'],
-                            VersionId=version['VersionId']
+                            Key=version["Key"],
+                            VersionId=version["VersionId"],
                         )
-                    for delete_marker in page.get('DeleteMarkers', []):
+                    for delete_marker in page.get("DeleteMarkers", []):
                         self.s3.delete_object(
                             Bucket=resource.resource_id,
-                            Key=delete_marker['Key'],
-                            VersionId=delete_marker['VersionId']
+                            Key=delete_marker["Key"],
+                            VersionId=delete_marker["VersionId"],
                         )
                 self.s3.delete_bucket(Bucket=resource.resource_id)
         elif resource.resource_type == "cloudfront_distribution":
@@ -224,13 +223,11 @@ class AWSProvisioner:
             except self.cloudfront.exceptions.InvalidIfMatchVersion:
                 # Need to get current config and ETag
                 response = self.cloudfront.get_distribution_config(Id=resource.resource_id)
-                etag = response['ETag']
-                config = response['DistributionConfig']
-                config['Enabled'] = False
+                etag = response["ETag"]
+                config = response["DistributionConfig"]
+                config["Enabled"] = False
                 self.cloudfront.update_distribution(
-                    Id=resource.resource_id,
-                    DistributionConfig=config,
-                    IfMatch=etag
+                    Id=resource.resource_id, DistributionConfig=config, IfMatch=etag
                 )
                 # Wait a bit for propagation
                 time.sleep(1)
@@ -542,9 +539,7 @@ nohup python3 -m http.server 80 --directory /var/www/html >/var/log/momops-http.
             self.s3.put_bucket_encryption(
                 Bucket=bucket,
                 ServerSideEncryptionConfiguration={
-                    "Rules": [
-                        {"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}
-                    ]
+                    "Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]
                 },
             )
             if service.config.get("versioning"):
@@ -702,9 +697,7 @@ nohup python3 -m http.server 80 --directory /var/www/html >/var/log/momops-http.
     def _services(self, service_name: str) -> list[AWSService]:
         wanted = service_name.lower()
         return [
-            service
-            for service in self.blueprint.aws_services
-            if service.service.lower() == wanted
+            service for service in self.blueprint.aws_services if service.service.lower() == wanted
         ]
 
     def _tags(self, name: str) -> list[dict[str, str]]:
@@ -872,9 +865,7 @@ class Deployer:
         # Iterate in reverse order
         for resource in reversed(self._resources):
             try:
-                await asyncio.to_thread(
-                    provisioner.rollback_resource, resource
-                )
+                await asyncio.to_thread(provisioner.rollback_resource, resource)
                 logger.info(
                     "Deleted resource: %s %s",
                     resource.resource_type,

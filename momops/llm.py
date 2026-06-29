@@ -297,4 +297,3 @@ def _extract_anthropic_text(response: object) -> str:
             return text
 
     raise LLMProviderError("Claude response contained no text")
-
