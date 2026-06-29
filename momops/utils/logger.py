@@ -48,6 +48,8 @@ class ProductionFilter(logging.Filter):
         "token",
         "credentials",
         "aws_secret_access_key",
+        "groq_api_key",
+        "openai_api_key",
         "anthropic_api_key",
     }
 

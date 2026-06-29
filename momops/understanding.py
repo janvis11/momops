@@ -1,7 +1,7 @@
 """
 AGENT-1: Intent Parser
 Converts free-form natural language into a structured InfraRequirement.
-Uses Claude claude-sonnet-4-20250514 via the Anthropic SDK.
+Uses configured LLM providers in priority order: Groq, OpenAI, Claude.
 """
 
 from __future__ import annotations
@@ -11,29 +11,18 @@ import logging
 import re
 from typing import Any
 
-try:
-    import anthropic
-except ModuleNotFoundError:  # pragma: no cover - exercised in minimal local envs
-    anthropic = None  # type: ignore[assignment]
-
-from momops.config import get_settings
 from momops.exceptions import IntentParsingError
+from momops.llm import (
+    LLMProviderError,
+    complete_text,
+    complete_text_async,
+    has_configured_provider,
+)
 from momops.models import DatabaseType, InfraRequirement, ScaleHint, ServiceType
 from momops.utils.prompts import INTENT_PARSER_SYSTEM, INTENT_PARSER_USER
 from momops.utils.validators import validate_region
 
 logger = logging.getLogger(__name__)
-
-_client: Any | None = None
-
-
-def _get_client() -> Any:
-    if anthropic is None:
-        raise IntentParsingError("anthropic is required for Claude intent parsing")
-    global _client
-    if _client is None:
-        _client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
-    return _client
 
 
 def parse_intent(intent: str, region: str = "us-east-1") -> InfraRequirement:
@@ -45,41 +34,29 @@ def parse_intent(intent: str, region: str = "us-east-1") -> InfraRequirement:
         region: Default AWS region to embed in the requirement
 
     Returns:
-        InfraRequirement — fully typed, validated, immutable
+        InfraRequirement â€” fully typed, validated, immutable
 
     Raises:
         ValueError: If LLM returns unparseable JSON
         anthropic.APIError: On API failure
     """
     region = validate_region(region)
-    if anthropic is None or not get_settings().anthropic_api_key:
-        logger.info("ANTHROPIC_API_KEY is not set; using deterministic intent parser")
+    if not has_configured_provider():
+        logger.info("No LLM provider is configured; using deterministic intent parser")
         return parse_intent_heuristic(intent, region=region)
 
-    client = _get_client()
     logger.debug("Parsing intent: %r", intent)
+    try:
+        response = complete_text(
+            system=INTENT_PARSER_SYSTEM,
+            messages=[{"role": "user", "content": INTENT_PARSER_USER.format(intent=intent)}],
+            max_tokens=512,
+        )
+    except LLMProviderError:
+        logger.exception("LLM intent parsing failed; using deterministic intent parser")
+        return parse_intent_heuristic(intent, region=region)
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=512,
-        system=INTENT_PARSER_SYSTEM,
-        messages=[
-            {
-                "role": "user",
-                "content": INTENT_PARSER_USER.format(intent=intent),
-            }
-        ],
-    )
-
-    # Extract text from first TextBlock in response
-    text_block = next(
-        (block for block in message.content if hasattr(block, "text")),
-        None,
-    )
-    if not text_block or not hasattr(text_block, "text"):
-        raise IntentParsingError("LLM response contained no text")
-
-    raw = text_block.text.strip()
+    raw = response.text.strip()
     logger.debug("Raw LLM response: %s", raw)
 
     try:
@@ -97,34 +74,22 @@ def parse_intent(intent: str, region: str = "us-east-1") -> InfraRequirement:
 async def parse_intent_async(intent: str, region: str = "us-east-1") -> InfraRequirement:
     """Async variant using the Anthropic async client."""
     region = validate_region(region)
-    if anthropic is None or not get_settings().anthropic_api_key:
-        logger.info("ANTHROPIC_API_KEY is not set; using deterministic intent parser")
+    if not has_configured_provider():
+        logger.info("No LLM provider is configured; using deterministic intent parser")
         return parse_intent_heuristic(intent, region=region)
 
-    async_client = anthropic.AsyncAnthropic()
     logger.debug("Parsing intent (async): %r", intent)
+    try:
+        response = await complete_text_async(
+            system=INTENT_PARSER_SYSTEM,
+            messages=[{"role": "user", "content": INTENT_PARSER_USER.format(intent=intent)}],
+            max_tokens=512,
+        )
+    except LLMProviderError:
+        logger.exception("Async LLM intent parsing failed; using deterministic intent parser")
+        return parse_intent_heuristic(intent, region=region)
 
-    message = await async_client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=512,
-        system=INTENT_PARSER_SYSTEM,
-        messages=[
-            {
-                "role": "user",
-                "content": INTENT_PARSER_USER.format(intent=intent),
-            }
-        ],
-    )
-
-    # Extract text from first TextBlock in response
-    text_block = next(
-        (block for block in message.content if hasattr(block, "text")),
-        None,
-    )
-    if not text_block or not hasattr(text_block, "text"):
-        raise IntentParsingError("LLM response contained no text")
-
-    raw = text_block.text.strip()
+    raw = response.text.strip()
 
     try:
         data: dict[str, Any] = json.loads(raw)

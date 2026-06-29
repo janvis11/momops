@@ -4,7 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Configure logging early
@@ -22,7 +22,31 @@ class MomOpsSettings(BaseSettings):
         case_sensitive=False,
     )
 
-    anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
+    groq_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("GROQ_API_KEY", "MOMOPS_GROQ_API_KEY"),
+    )
+    openai_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("OPENAI_API_KEY", "MOMOPS_OPENAI_API_KEY"),
+    )
+    anthropic_api_key: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("ANTHROPIC_API_KEY", "MOMOPS_ANTHROPIC_API_KEY"),
+    )
+    groq_model: str = Field(
+        default="llama-3.3-70b-versatile",
+        validation_alias=AliasChoices("GROQ_MODEL", "MOMOPS_GROQ_MODEL"),
+    )
+    openai_model: str = Field(
+        default="gpt-5.4-mini",
+        validation_alias=AliasChoices("OPENAI_MODEL", "MOMOPS_OPENAI_MODEL"),
+    )
+    anthropic_model: str = Field(
+        default="claude-sonnet-4-20250514",
+        validation_alias=AliasChoices("ANTHROPIC_MODEL", "MOMOPS_ANTHROPIC_MODEL"),
+    )
+    llm_timeout_seconds: float = 30.0
     aws_access_key_id: str | None = Field(default=None, alias="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str | None = Field(default=None, alias="AWS_SECRET_ACCESS_KEY")
     aws_session_token: str | None = Field(default=None, alias="AWS_SESSION_TOKEN")
