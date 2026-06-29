@@ -240,7 +240,7 @@ def _complete_anthropic(
         model=provider.model,
         max_tokens=1024,
         system=system,
-        messages=list(messages),
+        messages=list(messages),  # type: ignore[arg-type]
     )
     return _extract_anthropic_text(response)
 
@@ -258,7 +258,7 @@ async def _complete_anthropic_async(
         model=provider.model,
         max_tokens=1024,
         system=system,
-        messages=list(messages),
+        messages=list(messages),  # type: ignore[arg-type]
     )
     return _extract_anthropic_text(response)
 
