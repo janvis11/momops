@@ -158,7 +158,9 @@ class AWSProvisioner:
         elif resource.resource_type == "internet_gateway":
             # Detach from VPC first
             try:
-                response = self.ec2.describe_internet_gateways(InternetGatewayIds=[resource.resource_id])
+                response = self.ec2.describe_internet_gateways(
+                    InternetGatewayIds=[resource.resource_id]
+                )
                 igw = response['InternetGateways'][0]
                 for attachment in igw['Attachments']:
                     self.ec2.detach_internet_gateway(
@@ -240,7 +242,9 @@ class AWSProvisioner:
         elif resource.resource_type == "ecs_cluster":
             self.ecs.delete_cluster(cluster=resource.resource_id)
         elif resource.resource_type == "secret":
-            self.secretsmanager.delete_secret(SecretId=resource.resource_id, ForceDeleteWithoutRecovery=True)
+            self.secretsmanager.delete_secret(
+                SecretId=resource.resource_id, ForceDeleteWithoutRecovery=True
+            )
         elif resource.resource_type == "elasticache_subnet_group":
             self.elasticache.delete_cache_subnet_group(CacheSubnetGroupName=resource.resource_id)
         elif resource.resource_type == "elasticache_cluster":
@@ -257,7 +261,10 @@ class AWSProvisioner:
                 logger.warning("Failed to delete certificate %s: %s", resource.resource_id, e)
         elif resource.resource_type == "route53_zone":
             # We did not create the hosted zone, so do not delete it
-            logger.info("Skipping deletion of Route53 zone %s because we did not create it", resource.resource_id)
+            logger.info(
+                "Skipping deletion of Route53 zone %s because we did not create it",
+                resource.resource_id,
+            )
         else:
             logger.warning("Unknown resource type for rollback: %s", resource.resource_type)
 
@@ -477,7 +484,9 @@ nohup python3 -m http.server 80 --directory /var/www/html >/var/log/momops-http.
                 HealthCheckPath="/",
             )["TargetGroups"][0]
             self.ctx.target_group_arn = target_group["TargetGroupArn"]
-            resources.append(ProvisionedResource(step_name, "target_group", self.ctx.target_group_arn))
+            resources.append(
+                ProvisionedResource(step_name, "target_group", self.ctx.target_group_arn)
+            )
 
         if self.ctx.instance_ids:
             self.elbv2.register_targets(
@@ -497,7 +506,9 @@ nohup python3 -m http.server 80 --directory /var/www/html >/var/log/momops-http.
             )["LoadBalancers"][0]
             self.ctx.load_balancer_arn = lb["LoadBalancerArn"]
             self.ctx.load_balancer_dns = lb["DNSName"]
-            resources.append(ProvisionedResource(step_name, "load_balancer", self.ctx.load_balancer_arn))
+            resources.append(
+                ProvisionedResource(step_name, "load_balancer", self.ctx.load_balancer_arn)
+            )
 
         listener = self.elbv2.create_listener(
             LoadBalancerArn=self.ctx.load_balancer_arn,
@@ -690,7 +701,11 @@ nohup python3 -m http.server 80 --directory /var/www/html >/var/log/momops-http.
 
     def _services(self, service_name: str) -> list[AWSService]:
         wanted = service_name.lower()
-        return [service for service in self.blueprint.aws_services if service.service.lower() == wanted]
+        return [
+            service
+            for service in self.blueprint.aws_services
+            if service.service.lower() == wanted
+        ]
 
     def _tags(self, name: str) -> list[dict[str, str]]:
         return AWSProvider.tags(self.ctx.app_id, self._name(name))
@@ -784,7 +799,9 @@ class Deployer:
     async def _provision_sequence(self, app_id: str) -> AsyncGenerator[DeployEvent, None]:
         """Execute each deploy step in order with real AWS calls."""
         if boto3 is None:
-            raise DeploymentError("boto3 is required for real AWS deployments; use dry_run=True locally")
+            raise DeploymentError(
+                "boto3 is required for real AWS deployments; use dry_run=True locally"
+            )
 
         self._provisioner = AWSProvisioner(self.blueprint, app_id)
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, TypedDict, cast
+from typing import Literal, TypedDict
 
 import httpx
 
@@ -168,7 +168,9 @@ def _openai_compatible_payload(
     max_tokens: int,
 ) -> dict[str, object]:
     chat_messages: list[dict[str, str]] = [{"role": "system", "content": system}]
-    chat_messages.extend({"role": message["role"], "content": message["content"]} for message in messages)
+    chat_messages.extend(
+        {"role": message["role"], "content": message["content"]} for message in messages
+    )
     return {
         "model": provider.model,
         "messages": chat_messages,
